@@ -6,7 +6,7 @@
 <title>RelamLoL SPÑ VR | Minecraft Skins &amp; Renders Commissions</title>
 <link rel="icon" type="image/png" href="assets/relam.png">
 <meta name="description" content="Portafolio de RelamLoL SPÑ VR: renders, miniaturas, banners, flyers y skins de Minecraft por encargo. ¡Mira mi catálogo y pide tu comisión!">
-<meta name="theme-color" content="#cdb8f5">
+<meta name="theme-color" content="#1a0f33">
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="RelamLoL SPÑ VR">
@@ -31,91 +31,138 @@
 </head>
 <body>
 
-<header class="nav" id="nav">
+<div class="bg" aria-hidden="true">
+  <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
+  <div id="stars"></div>
+  <div class="glow" id="glow"></div>
+</div>
+
+<header class="nav">
   <a class="brand" href="#inicio">RelamLoL <small>SPÑ VR</small></a>
   <button class="menu-btn" id="menuBtn" aria-label="Abrir menú" aria-expanded="false" aria-controls="menu">Menú</button>
   <nav id="menu" class="menu" aria-label="Principal">
     <a href="#inicio">Inicio</a>
     <a href="#servicios">Servicios</a>
     <a href="#portafolio">Portafolio</a>
+    <a href="#terminos">Términos</a>
     <a href="#skins">Skins</a>
     <a href="#contacto">Contacto</a>
   </nav>
 </header>
 
-<main>
+<main class="stage" id="stage">
+
   <!-- INICIO -->
-  <section id="inicio" class="hero">
-    <div class="hero-text">
-      <p class="badge">Minecraft Render Designer</p>
-      <h1>Renders y miniaturas con estilo para tu proyecto</h1>
-      <p class="lead">Hola, soy RelamLoL. Creo renders, miniaturas, banners y skins para Minecraft. Ahora también exploro animaciones en Blockbench y texturizado.</p>
-      <div class="actions">
-        <a href="#portafolio" class="btn btn-dark">Ver portafolio</a>
-        <a href="#servicios" class="btn btn-soft">Ver precios</a>
+  <section id="inicio" class="screen">
+    <div class="wrap hero">
+      <div class="hero-text">
+        <p class="badge rv">Minecraft Render Designer</p>
+        <h1 class="rv">Renders y miniaturas con estilo para tu proyecto</h1>
+        <p class="lead rv">Hola, soy RelamLoL. Creo renders, miniaturas, banners y skins para Minecraft. Ahora también exploro animaciones en Blockbench y texturizado.</p>
+        <div class="actions rv">
+          <a href="#portafolio" class="btn btn-main">Ver portafolio</a>
+          <a href="#servicios" class="btn btn-ghost">Ver precios</a>
+        </div>
+        <p class="pay-pill rv">Precios con impuestos incluidos · Pagos por PayPal y Ko-fi</p>
+      </div>
+      <div class="collage rv" aria-hidden="true">
+        <img class="c1" src="assets/miniaturas/bandejitamini.png" alt="">
+        <img class="c2" src="assets/baners/banerrelamx.png" alt="">
+        <img class="c3" src="assets/flyer/flyerisla de la traicion.png" alt="">
+        <img class="avatar" src="assets/relamgif.gif" alt="">
       </div>
     </div>
-    <div class="collage" aria-hidden="true">
-      <img class="c1" src="assets/miniaturas/bandejitamini.png" alt="">
-      <img class="c2" src="assets/baners/banerrelamx.png" alt="">
-      <img class="c3" src="assets/flyer/flyerisla de la traicion.png" alt="">
-      <img class="avatar" src="assets/relamgif.gif" alt="">
-    </div>
-  </section>
-
-  <section class="clients" aria-label="Clientes">
-    <h2>He trabajado con</h2>
-    <ul>
-      <li><img src="assets/watonast.jpg" alt=""><span>Watonia Studio</span></li>
-      <li><img src="assets/novaterramc.png" alt=""><span>Novaterra MC</span></li>
-      <li><img src="assets/nebulacom.png" alt=""><span>Nebula Community</span></li>
-      <li><img src="assets/vnex.jpg" alt=""><span>VNEX Vtuber Server</span></li>
-      <li><img src="assets/otterst.png" alt=""><span>Otter Studio</span></li>
-    </ul>
   </section>
 
   <!-- SERVICIOS -->
-  <section id="servicios" class="section">
-    <h2 class="title">Comisiones y servicios</h2>
-    <div class="tabs" role="tablist" aria-label="Servicios" id="tabs"></div>
-    <div class="services">
-      <div id="servicePanel" class="service-info" role="tabpanel" aria-live="polite"></div>
-      <div id="servicePreview" class="service-preview"></div>
+  <section id="servicios" class="screen">
+    <div class="wrap">
+      <h2 class="title rv">Comisiones y servicios</h2>
+      <div class="notice rv">
+        <strong>Todos los precios ya incluyen impuestos.</strong>
+        <span>Los pagos se hacen por PayPal y Ko-fi.</span>
+        <a href="#terminos">Ver términos</a>
+      </div>
+      <div class="tabs rv" role="tablist" aria-label="Servicios" id="tabs"></div>
+      <div class="services rv">
+        <div id="servicePanel" class="service-info" role="tabpanel" aria-live="polite"></div>
+        <div id="servicePreview" class="service-preview"></div>
+      </div>
     </div>
   </section>
 
   <!-- PORTAFOLIO -->
-  <section id="portafolio" class="section">
-    <h2 class="title">Portafolio</h2>
-    <div class="filters" id="filters" aria-label="Filtrar por categoría"></div>
-    <div class="masonry" id="gallery"></div>
+  <section id="portafolio" class="screen">
+    <div class="wrap">
+      <h2 class="title rv">Portafolio</h2>
+      <div class="filters rv" id="filters" aria-label="Filtrar por categoría"></div>
+      <div class="masonry" id="gallery"></div>
+    </div>
+  </section>
+
+  <!-- TÉRMINOS -->
+  <section id="terminos" class="screen">
+    <div class="wrap">
+      <h2 class="title rv">Términos y pagos</h2>
+      <div class="pay-grid">
+        <div class="pay-card rv"><span>Precios</span><strong>Impuestos incluidos</strong></div>
+        <div class="pay-card rv"><span>Métodos de pago</span><strong>PayPal y Ko-fi</strong></div>
+      </div>
+      <ul class="terms">
+        <li class="rv"><strong>Pagos:</strong> solo acepto PayPal y Ko-fi.</li>
+        <li class="rv">Me reservo el derecho de cancelar o rechazar cualquier proyecto con el que no me sienta cómodo trabajando.</li>
+        <li class="rv">Puedes pedir hasta 3 pruebas o revisiones sin costo. Desde la 4.ª se aplica un cargo adicional de $3 USD. El contenido de prueba no puede publicarse bajo ninguna circunstancia.</li>
+        <li class="rv">Me reservo el derecho de publicar mis trabajos de miniaturas y renders en mis redes sociales y en mi portafolio.</li>
+      </ul>
+    </div>
   </section>
 
   <!-- SKINS -->
-  <section id="skins" class="section">
-    <div class="soon">
-      <h2>Catálogo de skins</h2>
-      <p>Estoy preparando esta sección. Muy pronto podrás ver mis skins aquí.</p>
+  <section id="skins" class="screen">
+    <div class="wrap">
+      <div class="soon rv">
+        <h2>Catálogo de skins</h2>
+        <p>Estoy preparando esta sección. Muy pronto podrás ver mis skins aquí.</p>
+      </div>
     </div>
   </section>
 
   <!-- CONTACTO -->
-  <section id="contacto" class="section">
-    <h2 class="title">Contacto</h2>
-    <p class="lead">Cuéntame qué necesitas y te respondo con una cotización.</p>
-    <div class="contact">
-      <a class="c-card pink" href="https://www.youtube.com/@RelamLoL" target="_blank" rel="noopener"><span>YouTube</span><strong>@RelamLoL</strong></a>
-      <a class="c-card sky" href="https://x.com/RelamMc" target="_blank" rel="noopener"><span>X / Twitter</span><strong>@RelamMc</strong></a>
-      <div class="c-card mint"><span>Discord</span><strong>relamlol</strong></div>
-      <a class="c-card peach" href="mailto:relamlolowo@gmail.com"><span>Correo</span><strong>relamlolowo@gmail.com</strong></a>
+  <section id="contacto" class="screen">
+    <div class="wrap">
+      <h2 class="title rv">Contacto</h2>
+      <p class="lead rv">Cuéntame qué necesitas y te respondo con una cotización.</p>
+      <div class="contact">
+        <a class="c-card rv" href="https://www.youtube.com/@RelamLoL" target="_blank" rel="noopener"><span>YouTube</span><strong>@RelamLoL</strong></a>
+        <a class="c-card rv" href="https://x.com/RelamMc" target="_blank" rel="noopener"><span>X / Twitter</span><strong>@RelamMc</strong></a>
+        <button class="c-card rv" type="button" data-copy="relamlol" aria-label="Copiar Discord"><span>Discord</span><strong>relamlol</strong><em>Copiar</em></button>
+        <button class="c-card rv" type="button" data-copy="relamlolowo@gmail.com" aria-label="Copiar correo"><span>Correo</span><strong>relamlolowo@gmail.com</strong><em>Copiar</em></button>
+      </div>
+
+      <h3 class="sub rv">Han confiado en mí</h3>
+      <ul class="clients">
+        <li class="rv"><a href="https://x.com/WatoniaTeam" target="_blank" rel="noopener"><img src="assets/watonast.jpg" alt=""><span>Watonia Studio</span></a></li>
+        <li class="rv"><a href="https://x.com/NovaTerraMC_" target="_blank" rel="noopener"><img src="assets/novaterramc.png" alt=""><span>Novaterra MC</span></a></li>
+        <li class="rv"><a href="https://x.com/NebulaComunity" target="_blank" rel="noopener"><img src="assets/nebulacom.png" alt=""><span>Nebula Community</span></a></li>
+        <li class="rv"><span class="nolink"><img src="assets/vnex.jpg" alt=""><span>VNEX Vtuber Server</span></span></li>
+        <li class="rv"><a href="https://x.com/OtterStudiomc" target="_blank" rel="noopener"><img src="assets/otterst.png" alt=""><span>Otter Studio</span></a></li>
+      </ul>
+
+      <footer class="footer rv">
+        <p>© 2026 RelamLoL. Todos los derechos reservados.</p>
+        <p>Desarrollado por <a href="https://x.com/zansum1" target="_blank" rel="noopener">ᴸᴹᶜ | Zansumi</a></p>
+      </footer>
     </div>
   </section>
 </main>
 
-<footer class="footer">
-  <p>© 2026 RelamLoL. Todos los derechos reservados.</p>
-  <p>Desarrollado por <a href="https://x.com/zansum1" target="_blank" rel="noopener">ᴸᴹᶜ | Zansumi</a></p>
-</footer>
+<nav class="pager" id="pager" aria-label="Cambiar de pantalla">
+  <button id="prev" aria-label="Pantalla anterior">&#8249;</button>
+  <span class="dots" id="dots"></span>
+  <button id="next" aria-label="Pantalla siguiente">&#8250;</button>
+</nav>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
 
 <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Vista ampliada" hidden>
   <button class="lb-close" id="lbClose" aria-label="Cerrar">&times;</button>

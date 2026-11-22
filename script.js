@@ -79,15 +79,6 @@ const SERVICIOS = {
       ["Renders de ganador", "$5 – $10 USD", "Render para destacar a los ganadores."],
       ["Iconos de perfil", "$3 – $10 USD", "Icono personalizado para tus redes."]
     ]
-  },
-  Importante: {
-    muestra: null,
-    terminos: [
-      "<strong>Pagos:</strong> solo acepto PayPal y Ko-fi.",
-      "Me reservo el derecho de cancelar o rechazar cualquier proyecto con el que no me sienta cómodo trabajando.",
-      "Puedes pedir hasta 3 pruebas o revisiones sin costo. Desde la 4.ª se aplica un cargo adicional de $3 USD. El contenido de prueba no puede publicarse bajo ninguna circunstancia.",
-      "Me reservo el derecho de publicar mis trabajos de miniaturas y renders en mis redes sociales y en mi portafolio."
-    ]
   }
 };
 
@@ -95,6 +86,7 @@ const SERVICIOS = {
    UTILIDADES
    ========================================================== */
 const $ = (sel, ctx = document) => ctx.querySelector(sel);
+const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
 const el = (tag, props = {}, html = "") => {
   const n = Object.assign(document.createElement(tag), props);
   if (html) n.innerHTML = html;
@@ -103,7 +95,77 @@ const el = (tag, props = {}, html = "") => {
 const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 /* ==========================================================
-   LIGHTBOX (con navegación anterior / siguiente)
+   PANTALLAS: una por vez, con transición direccional
+   ========================================================== */
+const screens = $$(".screen");
+const ids = screens.map(s => s.id);
+const menu = $("#menu");
+const menuBtn = $("#menuBtn");
+const navLinks = $$("a", menu);
+const dots = $("#dots");
+let current = -1;
+
+// retraso escalonado de la animación de entrada
+screens.forEach(s => $$(".rv", s).forEach((n, i) => n.style.setProperty("--i", Math.min(i, 10))));
+
+ids.forEach((id, i) => {
+  const d = el("button", { type: "button", ariaLabel: `Ir a ${id}` });
+  d.addEventListener("click", () => go(id));
+  dots.append(d);
+});
+
+function go(id, push = true) {
+  const next = ids.indexOf(id);
+  if (next < 0 || next === current) return;
+  current = next;
+  screens.forEach((s, i) => {
+    s.style.setProperty("--s", Math.sign(i - next));
+    s.classList.toggle("active", i === next);
+    s.toggleAttribute("inert", i !== next);
+  });
+  screens[next].scrollTop = 0;
+  navLinks.forEach(a => a.classList.toggle("active", a.getAttribute("href") === `#${id}`));
+  $$("button", dots).forEach((d, i) => d.classList.toggle("on", i === next));
+  document.title = `${id[0].toUpperCase() + id.slice(1)} | RelamLoL SPÑ VR`;
+  if (push) history.pushState(null, "", `#${id}`);
+  setMenu(false);
+}
+
+const step = d => go(ids[(current + d + ids.length) % ids.length]);
+$("#prev").addEventListener("click", () => step(-1));
+$("#next").addEventListener("click", () => step(1));
+
+// cualquier enlace interno (#algo) cambia de pantalla
+document.addEventListener("click", e => {
+  const a = e.target.closest('a[href^="#"]');
+  if (!a) return;
+  e.preventDefault();
+  go(a.getAttribute("href").slice(1));
+});
+window.addEventListener("popstate", () => go(location.hash.slice(1) || "inicio", false));
+
+// teclado (flechas) y deslizar en móvil
+document.addEventListener("keydown", e => {
+  if (!lb.hidden || /INPUT|TEXTAREA/.test(e.target.tagName)) return;
+  if (e.key === "ArrowRight") step(1);
+  if (e.key === "ArrowLeft") step(-1);
+});
+let tx = 0, ty = 0;
+$("#stage").addEventListener("touchstart", e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+$("#stage").addEventListener("touchend", e => {
+  const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+  if (Math.abs(dx) > 90 && Math.abs(dx) > Math.abs(dy) * 2) step(dx < 0 ? 1 : -1);
+}, { passive: true });
+
+// menú móvil
+function setMenu(open) {
+  menu.classList.toggle("open", open);
+  menuBtn.setAttribute("aria-expanded", open);
+}
+menuBtn.addEventListener("click", () => setMenu(!menu.classList.contains("open")));
+
+/* ==========================================================
+   LIGHTBOX
    ========================================================== */
 const lb = $("#lightbox");
 let lbItems = [], lbIndex = 0, lbOpener = null;
@@ -117,18 +179,10 @@ function lbShow() {
 function lbOpen(items, i) {
   lbItems = items; lbIndex = i; lbOpener = document.activeElement;
   lbShow(); lb.hidden = false;
-  document.body.style.overflow = "hidden";
   $("#lbClose").focus();
 }
-function lbClose() {
-  lb.hidden = true;
-  document.body.style.overflow = "";
-  lbOpener?.focus();
-}
-function lbStep(d) {
-  lbIndex = (lbIndex + d + lbItems.length) % lbItems.length;
-  lbShow();
-}
+function lbClose() { lb.hidden = true; lbOpener?.focus(); }
+function lbStep(d) { lbIndex = (lbIndex + d + lbItems.length) % lbItems.length; lbShow(); }
 $("#lbClose").addEventListener("click", lbClose);
 $("#lbPrev").addEventListener("click", () => lbStep(-1));
 $("#lbNext").addEventListener("click", () => lbStep(1));
@@ -145,21 +199,14 @@ document.addEventListener("keydown", e => {
    ========================================================== */
 const gallery = $("#gallery");
 const filters = $("#filters");
-const categorias = ["Todos", ...Object.keys(PORTAFOLIO)];
-
-function itemsDe(cat) {
-  return cat === "Todos" ? Object.values(PORTAFOLIO).flat() : PORTAFOLIO[cat];
-}
+const itemsDe = cat => cat === "Todos" ? Object.values(PORTAFOLIO).flat() : PORTAFOLIO[cat];
 
 function renderGaleria(cat) {
   const items = itemsDe(cat);
   gallery.replaceChildren();
-  if (!items.length) {
-    gallery.append(el("p", { className: "empty" }, "Todavía no hay trabajos en esta categoría."));
-    return;
-  }
   items.forEach(([src, desc, cliente], i) => {
-    const card = el("article", { className: "card" });
+    const card = el("article", { className: "card rv" });
+    card.style.setProperty("--i", Math.min(i, 10));
     const btn = el("button", { type: "button", ariaLabel: `Ampliar: ${desc} de ${cliente}` });
     btn.append(el("img", { src, alt: `${desc} para ${cliente}`, loading: "lazy", decoding: "async" }));
     btn.addEventListener("click", () => lbOpen(items, i));
@@ -168,11 +215,11 @@ function renderGaleria(cat) {
   });
 }
 
-categorias.forEach(cat => {
+["Todos", ...Object.keys(PORTAFOLIO)].forEach(cat => {
   const chip = el("button", { type: "button", className: "chip", textContent: cat });
   chip.setAttribute("aria-pressed", cat === "Todos");
   chip.addEventListener("click", () => {
-    filters.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", c === chip));
+    $$(".chip", filters).forEach(c => c.setAttribute("aria-pressed", c === chip));
     renderGaleria(cat);
   });
   filters.append(chip);
@@ -188,26 +235,19 @@ const preview = $("#servicePreview");
 
 function mostrarServicio(nombre) {
   const s = SERVICIOS[nombre];
-  tabs.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", t.dataset.tab === nombre));
-
-  panel.innerHTML = s.planes
-    ? `<h3>${nombre}</h3>` + s.planes.map(([t, p, d]) =>
-        `<div class="plan"><div><h4>${t}</h4><p>${d}</p></div><span class="price">${p}</span></div>`).join("")
-    : `<h3>Términos y pagos</h3><ul class="terms">${s.terminos.map(t => `<li>${t}</li>`).join("")}</ul>`;
-
+  $$(".tab", tabs).forEach(t => t.setAttribute("aria-selected", t.dataset.tab === nombre));
+  panel.innerHTML = `<h3>${nombre}</h3>` + s.planes.map(([t, p, d]) =>
+    `<div class="plan"><div><h4>${t}</h4><p>${d}</p></div><span class="price">${p}</span></div>`).join("");
   preview.replaceChildren();
-  preview.hidden = !s.muestra;
-  if (s.muestra) {
-    const muestras = PORTAFOLIO[s.muestra].slice(0, 6);
-    muestras.forEach(([src, desc, cliente], i) => {
-      const img = el("img", { src, alt: `${desc} para ${cliente}`, loading: "lazy", tabIndex: 0 });
-      img.addEventListener("click", () => lbOpen(muestras, i));
-      img.addEventListener("keydown", e => { if (e.key === "Enter") lbOpen(muestras, i); });
-      preview.append(img);
-    });
-  }
+  const muestras = PORTAFOLIO[s.muestra].slice(0, 6);
+  muestras.forEach(([src, desc, cliente], i) => {
+    const img = el("img", { src, alt: `${desc} para ${cliente}`, loading: "lazy", tabIndex: 0 });
+    img.style.animationDelay = `${i * 70}ms`;
+    img.addEventListener("click", () => lbOpen(muestras, i));
+    img.addEventListener("keydown", e => { if (e.key === "Enter") lbOpen(muestras, i); });
+    preview.append(img);
+  });
 }
-
 Object.keys(SERVICIOS).forEach(nombre => {
   const t = el("button", { type: "button", className: "tab", textContent: nombre });
   t.dataset.tab = nombre;
@@ -218,26 +258,51 @@ Object.keys(SERVICIOS).forEach(nombre => {
 mostrarServicio("Miniaturas");
 
 /* ==========================================================
-   NAVEGACIÓN: menú móvil + enlace activo
+   COPIAR (correo y Discord)
    ========================================================== */
-const menu = $("#menu");
-const menuBtn = $("#menuBtn");
-const setMenu = open => {
-  menu.classList.toggle("open", open);
-  menuBtn.setAttribute("aria-expanded", open);
-};
-menuBtn.addEventListener("click", () => setMenu(!menu.classList.contains("open")));
-menu.addEventListener("click", e => { if (e.target.closest("a")) setMenu(false); });
+const toast = $("#toast");
+let toastTimer;
+async function copiar(texto) {
+  try {
+    await navigator.clipboard.writeText(texto);
+  } catch {
+    const t = el("textarea", { value: texto });
+    t.style.cssText = "position:fixed;opacity:0";
+    document.body.append(t); t.select();
+    document.execCommand("copy"); t.remove();
+  }
+}
+$$("[data-copy]").forEach(b => b.addEventListener("click", async () => {
+  const texto = b.dataset.copy;
+  await copiar(texto);
+  const tag = $("em", b);
+  tag.textContent = "¡Copiado!"; tag.classList.add("ok");
+  toast.textContent = `Copiado: ${texto}`;
+  toast.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toast.classList.remove("show");
+    tag.textContent = "Copiar"; tag.classList.remove("ok");
+  }, 2000);
+}));
 
-const links = [...menu.querySelectorAll("a")];
-const spy = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    if (!entry.isIntersecting) return;
-    links.forEach(a => a.classList.toggle("active", a.getAttribute("href") === `#${entry.target.id}`));
-  });
-}, { rootMargin: "-40% 0px -55% 0px" });
+/* ==========================================================
+   FONDO: partículas flotantes + luz que sigue al cursor
+   ========================================================== */
+const stars = $("#stars");
+for (let i = 0; i < 18; i++) {
+  const s = el("i");
+  const size = 4 + Math.random() * 8;
+  s.style.cssText = `left:${Math.random() * 100}%;width:${size}px;height:${size}px;animation-duration:${14 + Math.random() * 16}s;animation-delay:-${Math.random() * 20}s`;
+  stars.append(s);
+}
+window.addEventListener("pointermove", e => {
+  const g = $("#glow").style;
+  g.setProperty("--mx", e.clientX + "px");
+  g.setProperty("--my", e.clientY + "px");
+}, { passive: true });
 
-links.forEach(a => {
-  const sec = $(a.getAttribute("href"));
-  if (sec) spy.observe(sec);
-});
+/* ==========================================================
+   INICIO
+   ========================================================== */
+go(ids.includes(location.hash.slice(1)) ? location.hash.slice(1) : "inicio", false);
