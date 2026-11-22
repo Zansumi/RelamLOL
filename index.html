@@ -27,7 +27,234 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<style>
+:root{
+  --bg:#150c29;
+  --bg2:#241347;
+  --ink:#f6f0ff;
+  --muted:#c3b5e3;
+  --lav:#d6c2ff;
+  --violet:#a678f5;
+  --violet-d:#7c4de0;
+  --pink:#ffb9db;
+  --mint:#b8f2de;
+  --peach:#ffd3b3;
+  --glass:rgba(255,255,255,.07);
+  --line:rgba(214,194,255,.18);
+  --r:22px;
+  --nav-h:68px;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;height:100dvh;overflow:hidden}
+body{
+  font-family:"DM Sans",system-ui,sans-serif;
+  color:var(--ink);line-height:1.6;
+  background:linear-gradient(140deg,var(--bg),var(--bg2) 60%,#2f1a5c);
+}
+img{max-width:100%;display:block}
+a{color:inherit}
+button{font:inherit;color:inherit}
+h1,h2,h3{font-family:"Bricolage Grotesque",sans-serif;line-height:1.1;letter-spacing:-.02em}
+:focus-visible{outline:3px solid var(--pink);outline-offset:3px;border-radius:10px}
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-thumb{background:var(--violet-d);border-radius:8px}
+
+/* FONDO ANIMADO */
+.bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.55;animation:drift 20s ease-in-out infinite alternate}
+.b1{width:520px;height:520px;background:#8b5cf6;top:-140px;left:-120px}
+.b2{width:460px;height:460px;background:#e879b9;bottom:-140px;right:-100px;animation-duration:26s;opacity:.4}
+.b3{width:380px;height:380px;background:#5b8bf5;top:35%;left:45%;animation-duration:32s;opacity:.3}
+@keyframes drift{
+  from{transform:translate(0,0) scale(1)}
+  50%{transform:translate(110px,60px) scale(1.15)}
+  to{transform:translate(-70px,-50px) scale(.95)}
+}
+#stars i{position:absolute;bottom:-10px;border-radius:50%;background:var(--lav);opacity:.5;animation:float linear infinite}
+@keyframes float{to{transform:translateY(-115vh) scale(1.3);opacity:0}}
+.glow{position:absolute;width:520px;height:520px;border-radius:50%;left:0;top:0;
+  background:radial-gradient(circle,rgba(214,194,255,.16),transparent 65%);
+  transform:translate(var(--mx,50vw),var(--my,40vh)) translate(-50%,-50%);transition:transform .25s ease-out}
+
+/* NAV */
+.nav{
+  position:fixed;z-index:50;top:12px;left:50%;transform:translateX(-50%);
+  width:min(1200px,calc(100% - 28px));height:var(--nav-h);padding:0 14px 0 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(30,16,60,.65);backdrop-filter:blur(16px);
+  border:1px solid var(--line);border-radius:999px;
+  box-shadow:0 10px 40px rgba(0,0,0,.3);
+  animation:navIn .8s var(--ease) both;
+}
+@keyframes navIn{from{opacity:0;transform:translate(-50%,-30px)}}
+.brand{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:1.25rem;text-decoration:none}
+.brand small{font-weight:500;color:var(--pink);font-size:.8em}
+.menu{display:flex;gap:4px;flex-wrap:nowrap;white-space:nowrap}
+.menu a{padding:9px 15px;border-radius:999px;text-decoration:none;font-weight:500;color:var(--muted);transition:background .25s,color .25s,transform .25s}
+.menu a:hover{color:var(--ink);transform:translateY(-1px)}
+.menu a.active{background:linear-gradient(135deg,var(--violet-d),var(--violet));color:#fff;box-shadow:0 6px 18px rgba(124,77,224,.5)}
+.menu-btn{display:none;border:0;background:var(--violet-d);font-weight:700;padding:9px 18px;border-radius:999px;cursor:pointer}
+
+/* PANTALLAS (una a la vez) */
+.stage{position:fixed;inset:0;z-index:1}
+.screen{
+  position:absolute;inset:0;display:flex;overflow-y:auto;
+  padding:calc(var(--nav-h) + 50px) 24px 100px;
+  opacity:0;visibility:hidden;pointer-events:none;
+  transform:translateX(calc(var(--s,1) * 80px)) scale(.97);filter:blur(8px);
+  transition:opacity .55s ease,transform .65s var(--ease),filter .5s ease,visibility 0s .65s;
+}
+.screen.active{
+  opacity:1;visibility:visible;pointer-events:auto;transform:none;filter:none;
+  transition:opacity .55s ease,transform .65s var(--ease),filter .5s ease,visibility 0s 0s;
+}
+.wrap{margin:auto;width:100%;max-width:1200px}
+.screen.active .rv{animation:rise .7s var(--ease) both;animation-delay:calc(var(--i,0) * 80ms + 200ms)}
+.rv{opacity:0}
+.screen.active .rv{opacity:1}
+@keyframes rise{from{opacity:0;transform:translateY(28px) scale(.97)}}
+
+.title{font-size:clamp(2rem,4.4vw,3.2rem);margin-bottom:24px;background:linear-gradient(90deg,#fff,var(--lav) 60%,var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{font-size:1.4rem;margin:44px 0 16px;color:var(--lav)}
+.lead{color:var(--muted);font-size:1.1rem;max-width:56ch}
+.badge{display:inline-block;background:rgba(184,242,222,.15);color:var(--mint);border:1px solid rgba(184,242,222,.35);padding:7px 16px;border-radius:999px;font-weight:700;font-size:.9rem;margin-bottom:18px}
+
+.btn{display:inline-block;padding:14px 28px;border-radius:999px;font-weight:700;text-decoration:none;position:relative;overflow:hidden;transition:transform .25s var(--ease),box-shadow .25s}
+.btn:hover{transform:translateY(-3px)}
+.btn-main{background:linear-gradient(135deg,var(--violet-d),var(--violet));color:#fff;box-shadow:0 10px 28px rgba(124,77,224,.55)}
+.btn-main::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.4) 50%,transparent 70%);transform:translateX(-120%);animation:shine 3.5s infinite}
+@keyframes shine{40%,100%{transform:translateX(120%)}}
+.btn-ghost{background:var(--glass);border:1px solid var(--line)}
+.btn-ghost:hover{background:rgba(255,255,255,.14)}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.pay-pill{display:inline-block;margin-top:24px;font-size:.92rem;color:var(--peach);background:rgba(255,211,179,.1);border:1px solid rgba(255,211,179,.3);padding:7px 16px;border-radius:999px}
+
+/* HERO */
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:50px;align-items:center}
+.hero h1{font-size:clamp(2.5rem,5.8vw,4.5rem);margin-bottom:20px;max-width:14ch}
+.collage{position:relative;aspect-ratio:1/1;max-width:520px;width:100%;justify-self:center}
+.collage img{position:absolute;object-fit:cover;border:5px solid rgba(255,255,255,.9);border-radius:var(--r);box-shadow:0 20px 50px rgba(0,0,0,.45)}
+.c1{width:62%;aspect-ratio:16/10;top:2%;left:0;--rot:-6deg;background:#6d3fd0;animation:bob 6s ease-in-out infinite}
+.c2{width:62%;aspect-ratio:16/10;top:34%;right:0;--rot:5deg;background:#c0559a;animation:bob 7s ease-in-out -2s infinite}
+.c3{width:38%;aspect-ratio:3/4;bottom:0;left:10%;--rot:-3deg;background:#3a8f7b;animation:bob 8s ease-in-out -4s infinite}
+.collage .avatar{width:26%;aspect-ratio:1;border-radius:50%;bottom:4%;right:6%;background:var(--peach);border-color:var(--pink);animation:pulse 4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-14px) rotate(var(--rot))}0%,100%{transform:translateY(0) rotate(var(--rot))}}
+@keyframes pulse{50%{transform:scale(1.07);box-shadow:0 0 40px rgba(255,185,219,.6)}}
+
+/* AVISO PRECIOS */
+.notice{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;margin-bottom:22px;padding:14px 20px;border-radius:var(--r);background:linear-gradient(135deg,rgba(255,211,179,.16),rgba(255,185,219,.12));border:1px solid rgba(255,211,179,.35)}
+.notice strong{color:var(--peach)}
+.notice span{color:var(--muted)}
+.notice a{margin-left:auto;color:var(--pink);font-weight:700}
+
+/* SERVICIOS */
+.tabs,.filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:26px}
+.tab,.chip{border:1px solid var(--line);background:var(--glass);padding:10px 20px;border-radius:999px;cursor:pointer;font-weight:500;transition:background .25s,transform .25s}
+.tab:hover,.chip:hover{background:rgba(255,255,255,.15);transform:translateY(-2px)}
+.tab[aria-selected="true"],.chip[aria-pressed="true"]{background:linear-gradient(135deg,var(--violet-d),var(--violet));border-color:transparent;color:#fff;box-shadow:0 6px 20px rgba(124,77,224,.5)}
+.services{display:grid;grid-template-columns:1fr 1.1fr;gap:34px;align-items:start}
+.service-info h3{font-size:1.7rem;margin-bottom:16px}
+.plan{display:flex;justify-content:space-between;gap:16px;padding:18px 20px;border-radius:var(--r);margin-bottom:12px;border:1px solid var(--line);background:var(--glass);animation:rise .5s var(--ease) both;transition:transform .3s var(--ease),border-color .3s}
+.plan:nth-of-type(1){animation-delay:.05s;border-left:4px solid var(--pink)}
+.plan:nth-of-type(2){animation-delay:.15s;border-left:4px solid var(--mint)}
+.plan:nth-of-type(3){animation-delay:.25s;border-left:4px solid var(--peach)}
+.plan:hover{transform:translateX(6px);border-color:var(--lav)}
+.plan h4{font-family:"Bricolage Grotesque",sans-serif;font-size:1.1rem}
+.plan p{font-size:.95rem;color:var(--muted)}
+.price{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:1.3rem;white-space:nowrap;color:var(--lav)}
+.service-preview{columns:2;column-gap:12px}
+.service-preview img{width:100%;margin-bottom:12px;border-radius:16px;break-inside:avoid;cursor:zoom-in;background:var(--bg2);border:1px solid var(--line);animation:rise .6s var(--ease) both;transition:transform .35s var(--ease),box-shadow .35s}
+.service-preview img:hover{transform:scale(1.03) rotate(-.6deg);box-shadow:0 14px 36px rgba(124,77,224,.5)}
+
+/* PORTAFOLIO */
+.masonry{columns:4;column-gap:18px}
+.card{break-inside:avoid;margin-bottom:18px;background:var(--glass);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;transition:transform .35s var(--ease),box-shadow .35s,border-color .35s}
+.card:hover{transform:translateY(-8px);border-color:var(--violet);box-shadow:0 18px 44px rgba(124,77,224,.5)}
+.card button{display:block;width:100%;border:0;padding:0;background:var(--bg2);cursor:zoom-in;overflow:hidden}
+.card img{width:100%;height:auto;transition:transform .5s var(--ease)}
+.card button:hover img{transform:scale(1.07)}
+.card-info{padding:12px 16px 14px}
+.card-info strong{display:block;font-size:.95rem}
+.card-info span{font-size:.85rem;color:var(--muted)}
+.empty{padding:40px;text-align:center;color:var(--muted)}
+
+/* TÉRMINOS */
+.pay-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-bottom:20px}
+.pay-card{padding:24px;border-radius:var(--r);background:linear-gradient(135deg,rgba(166,120,245,.35),rgba(255,185,219,.2));border:1px solid var(--line)}
+.pay-card span{display:block;color:var(--muted);font-size:.9rem}
+.pay-card strong{font-family:"Bricolage Grotesque",sans-serif;font-size:1.6rem}
+.terms{list-style:none;display:grid;gap:12px;max-width:820px}
+.terms li{background:var(--glass);border:1px solid var(--line);border-left:4px solid var(--violet);border-radius:var(--r);padding:16px 20px}
+
+/* SKINS */
+.soon{text-align:center;background:linear-gradient(135deg,rgba(124,77,224,.5),rgba(232,121,185,.35));border:1px solid var(--line);border-radius:36px;padding:80px 24px}
+.soon h2{font-size:clamp(2rem,4.4vw,3.2rem);margin-bottom:10px}
+.soon p{color:var(--muted)}
+
+/* CONTACTO */
+.contact{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-top:26px}
+.c-card{position:relative;display:flex;flex-direction:column;gap:4px;padding:22px;border-radius:var(--r);text-decoration:none;text-align:left;cursor:pointer;background:var(--glass);border:1px solid var(--line);transition:transform .3s var(--ease),border-color .3s,background .3s}
+.c-card:hover{transform:translateY(-5px);border-color:var(--pink);background:rgba(255,255,255,.12)}
+.c-card span{font-size:.9rem;color:var(--muted)}
+.c-card strong{font-family:"Bricolage Grotesque",sans-serif;font-size:1.1rem;word-break:break-word}
+.c-card em{position:absolute;top:18px;right:18px;font-style:normal;font-size:.8rem;font-weight:700;color:var(--ink);background:var(--violet-d);padding:3px 12px;border-radius:999px;transition:background .3s}
+.c-card em.ok{background:#2fa57d}
+.clients{list-style:none;display:flex;flex-wrap:wrap;gap:12px}
+.clients a,.nolink{display:flex;align-items:center;gap:12px;text-decoration:none;background:var(--glass);border:1px solid var(--line);border-radius:999px;padding:7px 20px 7px 7px;transition:transform .3s var(--ease),border-color .3s}
+.clients a:hover{transform:translateY(-4px);border-color:var(--lav)}
+.clients img{width:42px;height:42px;border-radius:50%;object-fit:cover;background:var(--violet-d)}
+.clients span span,.clients li>a>span,.nolink>span{font-weight:700;font-size:.95rem}
+.footer{text-align:center;margin-top:46px;padding-top:24px;border-top:1px solid var(--line);color:var(--muted);font-size:.92rem}
+.footer a{color:var(--pink);font-weight:700;text-decoration:none}
+
+/* PAGER */
+.pager{position:fixed;z-index:40;bottom:18px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(30,16,60,.7);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:999px}
+.pager button{border:0;background:var(--glass);width:36px;height:36px;border-radius:50%;font-size:1.4rem;line-height:1;cursor:pointer;transition:background .25s,transform .25s}
+.pager button:hover{background:var(--violet-d);transform:scale(1.1)}
+.dots{display:flex;gap:8px}
+.dots button{width:10px;height:10px;padding:0;background:rgba(214,194,255,.35);transition:width .35s var(--ease),background .3s}
+.dots button.on{width:28px;border-radius:999px;background:var(--pink)}
+
+/* TOAST */
+.toast{position:fixed;z-index:120;bottom:84px;left:50%;transform:translate(-50%,20px);opacity:0;background:#2fa57d;color:#fff;font-weight:700;padding:10px 22px;border-radius:999px;transition:opacity .3s,transform .3s var(--ease);pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* LIGHTBOX */
+.lightbox{position:fixed;inset:0;z-index:100;background:rgba(14,6,30,.9);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;gap:12px;padding:20px;animation:fade .3s}
+.lightbox[hidden]{display:none}
+@keyframes fade{from{opacity:0}}
+.lightbox figure{text-align:center;max-width:min(92vw,1100px)}
+.lightbox img{max-height:80vh;margin-inline:auto;border-radius:18px;box-shadow:0 0 70px rgba(166,120,245,.45);animation:zoom .3s var(--ease)}
+@keyframes zoom{from{transform:scale(.85);opacity:0}}
+.lightbox figcaption{margin-top:12px;color:var(--lav)}
+.lb-close,.lb-nav{border:0;background:var(--violet-d);width:46px;height:46px;border-radius:50%;font-size:1.8rem;line-height:1;cursor:pointer;flex-shrink:0;transition:background .25s,transform .25s}
+.lb-close{position:absolute;top:20px;right:20px}
+.lb-nav:hover,.lb-close:hover{background:var(--violet);transform:scale(1.1)}
+
+/* RESPONSIVE */
+@media (max-width:1000px){
+  .brand small{display:none}
+  .masonry{columns:3}
+  .hero,.services{grid-template-columns:1fr}
+  .collage{max-width:380px}
+  .menu a{padding:9px 11px;font-size:.92rem}
+}
+@media (max-width:820px){
+  .masonry{columns:2}
+  .menu-btn{display:block}
+  .menu{display:none;position:absolute;top:calc(100% + 8px);left:0;right:0;flex-direction:column;background:rgba(30,16,60,.95);backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:24px;padding:10px}
+  .menu.open{display:flex}
+  .lb-nav{position:absolute;bottom:20px}
+  .lb-prev{left:20px}.lb-next{right:20px}
+}
+@media (max-width:480px){.masonry{columns:1}.screen{padding-inline:16px}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition-duration:.01ms!important}
+  .rv{opacity:1}
+}
+
+</style>
 </head>
 <body>
 
@@ -174,6 +401,318 @@
   <button class="lb-nav lb-next" id="lbNext" aria-label="Siguiente">&#8250;</button>
 </div>
 
-<script src="script.js"></script>
+<script>
+"use strict";
+
+/* ==========================================================
+   DATOS  (para agregar un trabajo, añade una línea aquí)
+   formato: [ruta, descripción, cliente]
+   ========================================================== */
+const PORTAFOLIO = {
+  Miniaturas: [
+    ["assets/miniaturas/bandejitamini.png", "Miniatura para YouTube", "Bandejitapaisa"],
+    ["assets/miniaturas/juliiomini.png", "Miniatura para evento", "Juliokingdom"],
+    ["assets/miniaturas/marcoplaysmini.png", "Miniatura para evento", "ElMarcoPlays"],
+    ["assets/miniaturas/examplemini.png", "Miniatura para evento", "Example Client"],
+    ["assets/miniaturas/miniatura21.png", "Miniatura para evento", "Example Client"]
+  ],
+  Confirmaciones: [
+    ["assets/confirmaciones/confirmaciones otterstudio.png", "Confirmación de evento", "OtterStudio"],
+    ["assets/confirmaciones/confirmaciones otterstudio 2.png", "Confirmación de evento", "OtterStudio"],
+    ["assets/confirmaciones/confirmaciones otterstudio 3.png", "Confirmación de evento", "OtterStudio"],
+    ["assets/confirmaciones/confirmacionesespermadeath2 1.png", "Confirmación de evento", "ES Permadeath 2"],
+    ["assets/confirmaciones/confirmacionesespermadeath2 2.png", "Confirmación de evento", "ES Permadeath 2"],
+    ["assets/confirmaciones/confirmacionesespermadeath2 3.png", "Confirmación de evento", "ES Permadeath 2"],
+    ["assets/confirmaciones/confirmacionesespermadeath2 4.png", "Confirmación de evento", "ES Permadeath 2"],
+    ["assets/confirmaciones/confirmacionesespermadeath2 5.png", "Confirmación de evento", "ES Permadeath 2"],
+    ["assets/confirmaciones/confirmacionesespermadeath2 6.png", "Confirmación de evento", "ES Permadeath 2"],
+    ["assets/confirmaciones/confirmacionesnovaterra1.png", "Confirmación de evento", "Nova Terra MC"],
+    ["assets/confirmaciones/confirmacionesnovaterra2.png", "Confirmación de evento", "Nova Terra MC"],
+    ["assets/confirmaciones/confirmacionesnovaterra3.png", "Confirmación de evento", "Nova Terra MC"]
+  ],
+  Ganadores: [
+    ["assets/ganadores/ganador1experimentoluminated.png", "Ganador del concurso", "Experimento Luminated"],
+    ["assets/ganadores/ganador2experimentoluminated.png", "Ganador del concurso", "Experimento Luminated"],
+    ["assets/ganadores/ganador1skibidicum.png", "Ganador del concurso", "SkibidiCumple"],
+    ["assets/ganadores/ganador2skibidicum.png", "Ganador del concurso", "SkibidiCumple"],
+    ["assets/ganadores/ganador3skibidicum.png", "Ganador del concurso", "SkibidiCumple"],
+    ["assets/ganadores/ganador1sunset games remake Lucsggez.png", "Ganador del concurso", "Sunset Games Remake Lucsggez"],
+    ["assets/ganadores/ganador1watergames Neobraks.png", "Ganador del concurso", "Water Games Neobraks"]
+  ],
+  Flyers: [
+    ["assets/flyer/flyerisla de la traicion.png", "Flyer anunciativo", "Isla de la Traición"],
+    ["assets/flyer/flyerl.a.t.d v1.png", "Flyer anunciativo", "L.A.T.D v1"],
+    ["assets/flyer/flyerl.a.t.d v2.png", "Flyer anunciativo", "L.A.T.D v2"],
+    ["assets/flyer/flyerl.a.t.d v3.png", "Flyer anunciativo", "L.A.T.D v3"],
+    ["assets/flyer/flyersociety virtual valley.png", "Flyer anunciativo", "Society Virtual Valley"]
+  ],
+  Banners: [
+    ["assets/baners/banercloud_1667.png", "Banner para red social", "Cloud_1667"],
+    ["assets/baners/banerrelamx.png", "Banner para red social", "RelamMC"],
+    ["assets/baners/banertalo2203x.png", "Banner para red social", "Talo2203"],
+    ["assets/baners/banertredingccx.png", "Banner para red social", "Tredingcc"]
+  ],
+  Iconos: [
+    ["assets/iconos/elpapapum01.png", "Icono de perfil", "Elpapapum01"],
+    ["assets/iconos/icono by_capy.png", "Icono de perfil", "by_capy"],
+    ["assets/iconos/icono talo2203.png", "Icono de perfil", "Talo2203"]
+  ]
+};
+
+const SERVICIOS = {
+  Miniaturas: {
+    muestra: "Miniaturas",
+    planes: [
+      ["Sencillo", "$5 USD", "Render simple con iluminación y fondo básico."],
+      ["Con PNGs", "$10 USD", "Más detalles, iluminación mejorada y composición elaborada."],
+      ["Full detalles", "$15 USD", "Render complejo con personalización avanzada."]
+    ]
+  },
+  Confirmaciones: {
+    muestra: "Confirmaciones",
+    planes: [
+      ["Sencilla", "$5 USD", "Paquete de 5 confirmaciones."],
+      ["Poco compleja", "$10 USD", "Paquete de 5 confirmaciones con mayor detalle."],
+      ["Compleja", "$15 USD", "Paquete de 3 confirmaciones premium."]
+    ]
+  },
+  Otros: {
+    muestra: "Flyers",
+    planes: [
+      ["Flyers", "$5 – $15 USD", "Diseños anunciativos para tu evento o servidor."],
+      ["Renders de ganador", "$5 – $10 USD", "Render para destacar a los ganadores."],
+      ["Iconos de perfil", "$3 – $10 USD", "Icono personalizado para tus redes."]
+    ]
+  }
+};
+
+/* ==========================================================
+   UTILIDADES
+   ========================================================== */
+const $ = (sel, ctx = document) => ctx.querySelector(sel);
+const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
+const el = (tag, props = {}, html = "") => {
+  const n = Object.assign(document.createElement(tag), props);
+  if (html) n.innerHTML = html;
+  return n;
+};
+const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+/* ==========================================================
+   PANTALLAS: una por vez, con transición direccional
+   ========================================================== */
+const screens = $$(".screen");
+const ids = screens.map(s => s.id);
+const menu = $("#menu");
+const menuBtn = $("#menuBtn");
+const navLinks = $$("a", menu);
+const dots = $("#dots");
+let current = -1;
+
+// retraso escalonado de la animación de entrada
+screens.forEach(s => $$(".rv", s).forEach((n, i) => n.style.setProperty("--i", Math.min(i, 10))));
+
+ids.forEach((id, i) => {
+  const d = el("button", { type: "button", ariaLabel: `Ir a ${id}` });
+  d.addEventListener("click", () => go(id));
+  dots.append(d);
+});
+
+function go(id, push = true) {
+  const next = ids.indexOf(id);
+  if (next < 0 || next === current) return;
+  current = next;
+  screens.forEach((s, i) => {
+    s.style.setProperty("--s", Math.sign(i - next));
+    s.classList.toggle("active", i === next);
+    s.toggleAttribute("inert", i !== next);
+  });
+  screens[next].scrollTop = 0;
+  navLinks.forEach(a => a.classList.toggle("active", a.getAttribute("href") === `#${id}`));
+  $$("button", dots).forEach((d, i) => d.classList.toggle("on", i === next));
+  document.title = `${id[0].toUpperCase() + id.slice(1)} | RelamLoL SPÑ VR`;
+  if (push) { try { history.pushState(null, "", `#${id}`); } catch { location.hash = id; } }
+  setMenu(false);
+}
+
+const step = d => go(ids[(current + d + ids.length) % ids.length]);
+$("#prev").addEventListener("click", () => step(-1));
+$("#next").addEventListener("click", () => step(1));
+
+// cualquier enlace interno (#algo) cambia de pantalla
+document.addEventListener("click", e => {
+  const a = e.target.closest('a[href^="#"]');
+  if (!a) return;
+  e.preventDefault();
+  go(a.getAttribute("href").slice(1));
+});
+const desdeHash = () => go(location.hash.slice(1) || "inicio", false);
+window.addEventListener("popstate", desdeHash);
+window.addEventListener("hashchange", desdeHash);
+
+// teclado (flechas) y deslizar en móvil
+document.addEventListener("keydown", e => {
+  if (!lb.hidden || /INPUT|TEXTAREA/.test(e.target.tagName)) return;
+  if (e.key === "ArrowRight") step(1);
+  if (e.key === "ArrowLeft") step(-1);
+});
+let tx = 0, ty = 0;
+$("#stage").addEventListener("touchstart", e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+$("#stage").addEventListener("touchend", e => {
+  const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+  if (Math.abs(dx) > 90 && Math.abs(dx) > Math.abs(dy) * 2) step(dx < 0 ? 1 : -1);
+}, { passive: true });
+
+// menú móvil
+function setMenu(open) {
+  menu.classList.toggle("open", open);
+  menuBtn.setAttribute("aria-expanded", open);
+}
+menuBtn.addEventListener("click", () => setMenu(!menu.classList.contains("open")));
+
+/* ==========================================================
+   LIGHTBOX
+   ========================================================== */
+const lb = $("#lightbox");
+let lbItems = [], lbIndex = 0, lbOpener = null;
+
+function lbShow() {
+  const [src, desc, cliente] = lbItems[lbIndex];
+  $("#lbImg").src = src;
+  $("#lbImg").alt = `${desc} para ${cliente}`;
+  $("#lbCap").textContent = `${desc} · ${cliente}`;
+}
+function lbOpen(items, i) {
+  lbItems = items; lbIndex = i; lbOpener = document.activeElement;
+  lbShow(); lb.hidden = false;
+  $("#lbClose").focus();
+}
+function lbClose() { lb.hidden = true; lbOpener?.focus(); }
+function lbStep(d) { lbIndex = (lbIndex + d + lbItems.length) % lbItems.length; lbShow(); }
+$("#lbClose").addEventListener("click", lbClose);
+$("#lbPrev").addEventListener("click", () => lbStep(-1));
+$("#lbNext").addEventListener("click", () => lbStep(1));
+lb.addEventListener("click", e => { if (e.target === lb) lbClose(); });
+document.addEventListener("keydown", e => {
+  if (lb.hidden) return;
+  if (e.key === "Escape") lbClose();
+  if (e.key === "ArrowLeft") lbStep(-1);
+  if (e.key === "ArrowRight") lbStep(1);
+});
+
+/* ==========================================================
+   PORTAFOLIO: filtros + galería
+   ========================================================== */
+const gallery = $("#gallery");
+const filters = $("#filters");
+const itemsDe = cat => cat === "Todos" ? Object.values(PORTAFOLIO).flat() : PORTAFOLIO[cat];
+
+function renderGaleria(cat) {
+  const items = itemsDe(cat);
+  gallery.replaceChildren();
+  items.forEach(([src, desc, cliente], i) => {
+    const card = el("article", { className: "card rv" });
+    card.style.setProperty("--i", Math.min(i, 10));
+    const btn = el("button", { type: "button", ariaLabel: `Ampliar: ${desc} de ${cliente}` });
+    btn.append(el("img", { src, alt: `${desc} para ${cliente}`, loading: "lazy", decoding: "async" }));
+    btn.addEventListener("click", () => lbOpen(items, i));
+    card.append(btn, el("div", { className: "card-info" }, `<strong>${esc(desc)}</strong><span>${esc(cliente)}</span>`));
+    gallery.append(card);
+  });
+}
+
+["Todos", ...Object.keys(PORTAFOLIO)].forEach(cat => {
+  const chip = el("button", { type: "button", className: "chip", textContent: cat });
+  chip.setAttribute("aria-pressed", cat === "Todos");
+  chip.addEventListener("click", () => {
+    $$(".chip", filters).forEach(c => c.setAttribute("aria-pressed", c === chip));
+    renderGaleria(cat);
+  });
+  filters.append(chip);
+});
+renderGaleria("Todos");
+
+/* ==========================================================
+   SERVICIOS: pestañas
+   ========================================================== */
+const tabs = $("#tabs");
+const panel = $("#servicePanel");
+const preview = $("#servicePreview");
+
+function mostrarServicio(nombre) {
+  const s = SERVICIOS[nombre];
+  $$(".tab", tabs).forEach(t => t.setAttribute("aria-selected", t.dataset.tab === nombre));
+  panel.innerHTML = `<h3>${nombre}</h3>` + s.planes.map(([t, p, d]) =>
+    `<div class="plan"><div><h4>${t}</h4><p>${d}</p></div><span class="price">${p}</span></div>`).join("");
+  preview.replaceChildren();
+  const muestras = PORTAFOLIO[s.muestra].slice(0, 6);
+  muestras.forEach(([src, desc, cliente], i) => {
+    const img = el("img", { src, alt: `${desc} para ${cliente}`, loading: "lazy", tabIndex: 0 });
+    img.style.animationDelay = `${i * 70}ms`;
+    img.addEventListener("click", () => lbOpen(muestras, i));
+    img.addEventListener("keydown", e => { if (e.key === "Enter") lbOpen(muestras, i); });
+    preview.append(img);
+  });
+}
+Object.keys(SERVICIOS).forEach(nombre => {
+  const t = el("button", { type: "button", className: "tab", textContent: nombre });
+  t.dataset.tab = nombre;
+  t.setAttribute("role", "tab");
+  t.addEventListener("click", () => mostrarServicio(nombre));
+  tabs.append(t);
+});
+mostrarServicio("Miniaturas");
+
+/* ==========================================================
+   COPIAR (correo y Discord)
+   ========================================================== */
+const toast = $("#toast");
+let toastTimer;
+async function copiar(texto) {
+  try {
+    await navigator.clipboard.writeText(texto);
+  } catch {
+    const t = el("textarea", { value: texto });
+    t.style.cssText = "position:fixed;opacity:0";
+    document.body.append(t); t.select();
+    document.execCommand("copy"); t.remove();
+  }
+}
+$$("[data-copy]").forEach(b => b.addEventListener("click", async () => {
+  const texto = b.dataset.copy;
+  await copiar(texto);
+  const tag = $("em", b);
+  tag.textContent = "¡Copiado!"; tag.classList.add("ok");
+  toast.textContent = `Copiado: ${texto}`;
+  toast.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toast.classList.remove("show");
+    tag.textContent = "Copiar"; tag.classList.remove("ok");
+  }, 2000);
+}));
+
+/* ==========================================================
+   FONDO: partículas flotantes + luz que sigue al cursor
+   ========================================================== */
+const stars = $("#stars");
+for (let i = 0; i < 18; i++) {
+  const s = el("i");
+  const size = 4 + Math.random() * 8;
+  s.style.cssText = `left:${Math.random() * 100}%;width:${size}px;height:${size}px;animation-duration:${14 + Math.random() * 16}s;animation-delay:-${Math.random() * 20}s`;
+  stars.append(s);
+}
+window.addEventListener("pointermove", e => {
+  const g = $("#glow").style;
+  g.setProperty("--mx", e.clientX + "px");
+  g.setProperty("--my", e.clientY + "px");
+}, { passive: true });
+
+/* ==========================================================
+   INICIO
+   ========================================================== */
+go(ids.includes(location.hash.slice(1)) ? location.hash.slice(1) : "inicio", false);
+
+</script>
 </body>
 </html>
